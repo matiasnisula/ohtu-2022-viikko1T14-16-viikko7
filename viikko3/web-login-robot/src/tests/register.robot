@@ -34,6 +34,29 @@ Register With Nonmatching Password And Password Confirmation
     Submit Credentials
     Register Should Fail With Message  Password doesnt match with password confirmation
 
+Login After Successful Registration
+    Set Username  abcd
+    Set Password  abc123456
+    Set Password Confirmation  abc123456
+    Submit Credentials
+    Go To Login Page
+    Set Username  abcd
+    Set Password  abc123456
+    Click Button  Login
+    Main Page Should Be Open
+
+Login After Failed Registration
+    Set Username  aa
+    Set Password  abc123456
+    Set Password Confirmation  abc123456
+    Submit Credentials
+    Go To Login Page
+    Set Username  aa
+    Set Password  abc123456
+    Click Button  Login
+    Page Should Contain  Invalid username or password
+    
+
 *** Keywords ***
 Submit Credentials
     Click Button  Register
