@@ -8,9 +8,7 @@ from tuote import Tuote
 class TestKauppa(unittest.TestCase):
     def setUp(self):
         self.pankki_mock = Mock()
-        self.viitegeneraattori_mock = Mock()
-        # palautetaan aina arvo 42
-        self.viitegeneraattori_mock.uusi.return_value = 42
+        self.viitegeneraattori_mock = Mock(wraps=Viitegeneraattori())
         self.varasto_mock = Mock()
 
         # tehdään toteutus saldo-metodille
@@ -99,3 +97,53 @@ class TestKauppa(unittest.TestCase):
             "12345",
             self.kauppa._kaupan_tili,
             5)
+
+    def test_metodi_aloita_asiointi_nollaa_edellisen_ostoksen_tiedot(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("pekka", "12345")
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("antti", "3245")
+
+        self.pankki_mock.tilisiirto.assert_called_with(
+            "antti",
+            ANY,
+            "3245",
+            self.kauppa._kaupan_tili,
+            4)
+
+        
+    def test_pyydetaan_uusi_viite_jokaiselle_maksutapahtumalle(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("pekka", "12345")
+
+        self.assertEqual(self.viitegeneraattori_mock.uusi.call_count, 1)
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("antti", "123458")
+
+        self.assertEqual(self.viitegeneraattori_mock.uusi.call_count, 2)
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("anssi", "1234")
+
+        self.assertEqual(self.viitegeneraattori_mock.uusi.call_count, 3)
+
+    def test_metodi_poista_korista_poistaa_tuotteen(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.poista_korista(1)
+        self.kauppa.tilimaksu("pekka", "12345")
+
+        self.pankki_mock.tilisiirto.assert_called_with(
+            "pekka",
+            ANY,
+            "12345",
+            self.kauppa._kaupan_tili,
+            4)
