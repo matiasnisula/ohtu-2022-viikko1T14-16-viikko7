@@ -1,5 +1,6 @@
 from enum import Enum
 from tkinter import ttk, constants, StringVar
+from komennot import Summa, Erotus, Nollaus, Kumoa
 
 
 class Komento(Enum):
@@ -7,39 +8,6 @@ class Komento(Enum):
     EROTUS = 2
     NOLLAUS = 3
     KUMOA = 4
-
-class Summa:
-    def __init__(self, sovelluslogiikka, syote):
-        self._sovelluslogiikka = sovelluslogiikka
-        self._syote = syote
-    
-    def suorita(self):
-        self._sovelluslogiikka.plus(int(self._syote()))
-
-class Erotus:
-    def __init__(self, sovelluslogiikka, syote):
-        self._sovelluslogiikka = sovelluslogiikka
-        self._syote = syote
-    
-    def suorita(self):
-        self._sovelluslogiikka.miinus(int(self._syote()))
-
-class Nollaus:
-    def __init__(self, sovelluslogiikka, syote):
-        self._sovelluslogiikka = sovelluslogiikka
-        self._syote = syote
-    
-    def suorita(self):
-        self._sovelluslogiikka.nollaa()
-
-class Kumoa:
-    def __init__(self, sovelluslogiikka, syote):
-        self._sovelluslogiikka = sovelluslogiikka
-        self._syote = syote
-    
-    def suorita(self):
-        pass
-
 
 class Kayttoliittyma:
     def __init__(self, sovelluslogiikka, root):
@@ -50,7 +18,7 @@ class Kayttoliittyma:
             Komento.SUMMA: Summa(sovelluslogiikka, self._lue_syote),
             Komento.EROTUS: Erotus(sovelluslogiikka, self._lue_syote),
             Komento.NOLLAUS: Nollaus(sovelluslogiikka, self._lue_syote),
-            Komento.KUMOA: Kumoa(sovelluslogiikka, self._lue_syote)
+            Komento.KUMOA: Kumoa()
         }
 
     def kaynnista(self):
@@ -93,12 +61,14 @@ class Kayttoliittyma:
         self._nollaus_painike.grid(row=2, column=2)
         self._kumoa_painike.grid(row=2, column=3)
 
+
     def _lue_syote(self):
         return self._syote_kentta.get()
 
     def _suorita_komento(self, komento):
         komento_olio = self._komennot[komento]
         komento_olio.suorita()
+        self._komennot[Komento.KUMOA].aseta_komento(komento_olio)
         self._kumoa_painike["state"] = constants.NORMAL
 
         if self._sovelluslogiikka.tulos == 0:
