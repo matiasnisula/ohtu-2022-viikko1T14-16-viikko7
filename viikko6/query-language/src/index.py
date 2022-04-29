@@ -9,12 +9,34 @@ def main():
     stats = Statistics(reader)
 
     query = QueryBuilder()
+    #m1 = (
+    #    query
+    #        .playsIn("PHI")
+    #        .hasAtLeast(10, "assists")
+    #        .hasFewerThan(5, "goals")
+    #        .build()
+    #)
+
+    #m2 = (
+    #    query
+    #        .playsIn("EDM")
+    #        .hasAtLeast(40, "points")
+    #        .build()
+    #)
+
+
     matcher = (
-      query  
-        .playsIn("NYR")  
-        .hasAtLeast(5, "goals")  
-        .hasFewerThan(10, "goals")  
-        .build()
+        query
+            .oneOf(
+                query.playsIn("PHI")
+                    .hasAtLeast(10, "assists")
+                    .hasFewerThan(5, "goals")
+                    .build(),
+                query.playsIn("EDM")
+                    .hasAtLeast(40, "points")
+                    .build()
+            )
+            .build()
     )
 
 
